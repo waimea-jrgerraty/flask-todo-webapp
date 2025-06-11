@@ -1,0 +1,56 @@
+{#=====================================================
+  Debug info component
+  - Displays useful info connected with the request
+  - Displays contents of session, if any
+  - Will not be active on deploy (where debug is False)
+=====================================================#}
+
+{% if config.DEBUG %}
+
+    <table
+        id="debug"
+        style="
+            --pico-spacing: 0.5em;
+            position: fixed;
+            right: 1rem;
+            bottom: 1em;
+            width: fit-content;
+            padding: 0.75em 1em 0;
+            margin: 0;
+            border: 2px solid var(--pico-table-border-color);
+            box-shadow: var(--pico-box-shadow);
+            font-size: 0.8rem;
+            line-height: 1;
+            z-index: 999;
+            opacity: 0.3;
+            transform: translate(calc(100% - 1rem), calc(100% - 1rem));
+            transition: all 200ms;
+        "
+        onmouseover="this.style.opacity='1';this.style.transform='translate(0)';"
+    >
+        <tr><th colspan="2"><strong>Request Data</strong></th></tr>
+
+        <tr><th>&nbsp;URL  </th><td><strong>{{ request.path     }}</strong></td></tr>
+        <tr><th>&nbsp;Route</th><td><strong>{{ request.url_rule }}</strong></td></tr>
+        <tr><th>&nbsp;Func </th><td><strong>{{ request.endpoint }}</strong></td></tr>
+        <tr><th>&nbsp;Args </th><td>
+            {% if request.view_args and request.view_args.items() %}
+                {% for key, value in request.view_args.items() %}
+                    <strong>{{ key }}: {{ value }}</strong><br>
+                {% endfor %}
+            {% else %}
+                None
+            {% endif %}
+        </td></tr>
+
+        <tr><th colspan="2"><strong>Session Data</strong></th></tr>
+
+        {% for key, value in session.items() %}
+            <tr><th>&nbsp;{{ key }}</th><td><strong>{{ value }}</strong></td></tr>
+        {% else %}
+            <tr><td colspan="2">&nbsp;None</td></tr>
+        {% endfor %}
+    </table>
+
+{% endif %}
+
