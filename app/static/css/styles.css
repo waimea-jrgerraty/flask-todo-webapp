@@ -3,16 +3,18 @@
 =====================================================*/
 
 
-/* ABOUT PAGE -------------------------------------------- */
+/* DEFAULT PAGE -------------------------------------------- */
 
-#tech-stack {
+#defaultPage {
+    text-align: center;
+    width: 100%;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-#tech-stack article {
-    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 
@@ -30,6 +32,10 @@
     margin-bottom: 1rem;
 }
 
-#messages .message.success { color: var(--pico-ins-color); }
-#messages .message.error   { color: var(--pico-del-color); }
+#messages .message.success {
+    color: var(--pico-ins-color);
+}
 
+#messages .message.error {
+    color: var(--pico-del-color);
+}
