@@ -28,7 +28,31 @@ register_error_handlers(app)
 @app.get("/")
 def index():
     # TODO: Home page if signed in
-    return render_template("pages/default.jinja")
+    if "userid" in session:
+        with connect_db() as client:
+            # Incomplete tasks
+            sql_incomplete = """
+                SELECT *
+                FROM tasks
+                WHERE userid=? AND completed=0
+                ORDER BY priority DESC
+            """
+            # Completed tasks
+            sql_completed = """
+                SELECT *
+                FROM tasks
+                WHERE userid=? AND completed=1
+                ORDER BY priority DESC
+            """
+            values = [session["userid"]]
+            incomplete = client.execute(sql_incomplete, values)
+            complete = client.execute(sql_completed, values)
+
+            return render_template(
+                "pages/home.jinja", tasks=incomplete.rows, completedTasks=complete.rows
+            )
+    else:
+        return render_template("pages/default.jinja")
 
 
 # -----------------------------------------------------------
@@ -56,104 +80,61 @@ def login_form():
 
 
 # -----------------------------------------------------------
-# Things page route - Show all the things, and new thing form
-# -----------------------------------------------------------
-@app.get("/things/")
-def show_all_things():
-    with connect_db() as client:
-        # Get all the things from the DB
-        sql = """
-            SELECT things.id,
-                   things.name,
-                   users.name AS owner
-
-            FROM things
-            JOIN users ON things.user_id = users.id
-
-            ORDER BY things.name ASC
-        """
-        result = client.execute(sql)
-        things = result.rows
-
-        # And show them on the page
-        return render_template("pages/things.jinja", things=things)
-
-
-# -----------------------------------------------------------
-# Thing page route - Show details of a single thing
-# -----------------------------------------------------------
-@app.get("/thing/<int:id>")
-def show_one_thing(id):
-    with connect_db() as client:
-        # Get the thing details from the DB, including the owner info
-        sql = """
-            SELECT things.id,
-                   things.name,
-                   things.price,
-                   things.user_id,
-                   users.name AS owner
-
-            FROM things
-            JOIN users ON things.user_id = users.id
-
-            WHERE things.id=?
-        """
-        values = [id]
-        result = client.execute(sql, values)
-
-        # Did we get a result?
-        if result.rows:
-            # yes, so show it on the page
-            thing = result.rows[0]
-            return render_template("pages/thing.jinja", thing=thing)
-
-        else:
-            # No, so show error
-            return not_found_error()
-
-
-# -----------------------------------------------------------
-# Route for adding a thing, using data posted from a form
+# Route for adding a task, using data posted from a form
 # - Restricted to logged in users
 # -----------------------------------------------------------
 @app.post("/add")
 @login_required
-def add_a_thing():
+def add_a_task():
     # Get the data from the form
     name = request.form.get("name")
-    price = request.form.get("price")
+    priority = request.form.get("priority")
+
+    print(name, priority)
 
     # Sanitise the inputs
     name = html.escape(name)
-    price = html.escape(price)
 
     with connect_db() as client:
         # Add the thing to the DB
-        sql = "INSERT INTO things (name, price, user_id) VALUES (?, ?, ?)"
-        values = [name, price, session["user_id"]]
+        sql = "INSERT INTO tasks (name, priority, userid) VALUES (?, ?, ?)"
+        values = [name, priority, session["userid"]]
         client.execute(sql, values)
 
         # Go back to the home page
-        flash(f"Thing '{name}' added", "success")
-        return redirect("/things")
+        flash(f"Task '{name}' added", "success")
+        return redirect("/")
 
 
 # -----------------------------------------------------------
-# Route for deleting a thing, Id given in the route
+# Route for deleting a task, Id given in the route
 # - Restricted to logged in users
 # -----------------------------------------------------------
 @app.get("/delete/<int:id>")
 @login_required
-def delete_a_thing(id):
+def delete_a_task(id):
     with connect_db() as client:
         # Delete the thing from the DB only if we own it
-        sql = "DELETE FROM things WHERE id=? AND user_id=?"
-        values = [id, session["user_id"]]
+        sql = "DELETE FROM tasks WHERE id=? AND userid=?"
+        values = [id, session["userid"]]
         client.execute(sql, values)
 
         # Go back to the home page
-        flash("Thing deleted", "warning")
-        return redirect("/things")
+        flash("Task deleted", "warning")
+        return redirect("/")
+
+
+@app.get("/toggle/<int:id>")
+@login_required
+def toggle_a_task(id):
+    with connect_db() as client:
+        # Toggle the completed boolean
+        sql = "UPDATE tasks SET completed = NOT completed WHERE id=? AND userid=?"
+        values = [id, session["userid"]]
+        client.execute(sql, values)
+
+        # Go back to the home page
+        return redirect("/")
 
 
 # -----------------------------------------------------------
@@ -173,7 +154,7 @@ def add_user():
 
     with connect_db() as client:
         # Add the thing to the DB
-        sql = "INSERT OR IGNORE INTO users (username, hash) VALUES (?, ?)"
+        sql = "INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)"
         values = [username, hash]
         result = client.execute(sql, values)
 

@@ -1,0 +1,65 @@
+{#=====================================================
+  Home page
+  - Hero style greeting banner
+  - List of things passed in as 'things' array
+  - Form for adding a new thing
+=====================================================#}
+{% extends "pages/base.jinja" %}
+{% block title %}
+    TodoList
+{% endblock title %}
+{% block content %}
+    <section id="taskList">
+        {# Incomplete tasks #}
+        {% if tasks %}
+            <h2>Unfinished tasks</h2>
+            {% for task in tasks %}
+                <article class="task">
+                    <span class="ballot">
+                        <a href="/toggle/{{ task.id }}">&#x2610</a>
+                    </span>
+                    <span class="priority p{{ task.priority }}">{{ task.priority }}</span>
+                    <span class="name">{{ task.name }}</span>
+                </article>
+            {% endfor %}
+        {% endif %}
+        {# Complete tasks #}
+        {% if completedTasks %}
+            <h2>Finished tasks</h2>
+            {% for task in completedTasks %}
+                <article class="task complete">
+                    <span class="ballot">
+                        <a href="/toggle/{{ task.id }}">&#x2611</a>
+                    </span>
+                    <span class="priority p{{ task.priority }}">{{ task.priority }}</span>
+                    <span class="name">{{ task.name }}</span>
+                    <span class="remove"><a href="/delete/{{ task.id }}">&#x24E7</a></span>
+                </article>
+            {% endfor %}
+        {% endif %}
+        {% if not tasks and not completedTasks %}<p>You have no tasks yet. Create some!</p>{% endif %}
+    </section>
+    <section id="newTask">
+        <h2>Create a new task</h2>
+        <form action="/add" method="post">
+            <fieldset role="group">
+                <input type="text"
+                       id="name"
+                       name="name"
+                       placeholder="Name"
+                       autocomplete="off"
+                       spellcheck="false"
+                       required>
+                <select name="priority" id="priority" aria-label="Priority">
+                    <option selected disabled value="">Priority</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                <button>Create</button>
+            </fieldset>
+        </form>
+    </section>
+{% endblock content %}

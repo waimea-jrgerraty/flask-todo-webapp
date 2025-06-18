@@ -17,6 +17,12 @@
     align-items: center;
 }
 
+/* HOME PAGE  -------------------------------------------- */
+
+/* Form */
+#newTask #priority {
+    width: min-content;
+}
 
 /* MESSAGES -------------------------------------------- */
 
@@ -38,4 +44,8 @@
 
 #messages .message.error {
     color: var(--pico-del-color);
+}
+
+#message .message.warning {
+    color: var(--pico-color-yellow-150)
 }

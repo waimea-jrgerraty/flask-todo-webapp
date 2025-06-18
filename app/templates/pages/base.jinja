@@ -37,8 +37,8 @@
                     </li>
                 </ul>
                 <ul>
-                    {% if session.user_name %}<li>Hello, {{ session.user_name }}</li>{% endif %}
-                    {% if session.user_id %}
+                    {% if session.username %}<li>Hello, {{ session.username }}</li>{% endif %}
+                    {% if session.userid %}
                         <li>
                             <a role="button" href="/logout">Logout</a>
                         </li>
