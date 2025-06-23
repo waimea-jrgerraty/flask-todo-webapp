@@ -8,34 +8,34 @@
 {% block title %}
     TodoList
 {% endblock title %}
+{# Create a macro to encapsulate task rendering #}
+{% macro render_task(task, complete) %}
+    <article class="task{% if complete %} complete{% endif %}">
+        <span class="ballot">
+            <a href="/toggle/{{ task.id }}">
+                {% if complete %}
+                    &#x2611
+                {% else %}
+                    &#x2610
+                {% endif %}
+            </a>
+        </span>
+        <span class="priority p{{ task.priority }}">{{ task.priority }}</span>
+        <span class="name">{{ task.name }}</span>
+        {% if complete %}<span class="remove"><a href="/delete/{{ task.id }}">&#x24E7</a></span>{% endif %}
+    </article>
+{% endmacro %}
 {% block content %}
     <section id="taskList">
         {# Incomplete tasks #}
         {% if tasks %}
             <h2>Unfinished tasks</h2>
-            {% for task in tasks %}
-                <article class="task">
-                    <span class="ballot">
-                        <a href="/toggle/{{ task.id }}">&#x2610</a>
-                    </span>
-                    <span class="priority p{{ task.priority }}">{{ task.priority }}</span>
-                    <span class="name">{{ task.name }}</span>
-                </article>
-            {% endfor %}
+            {% for task in tasks %}{{ render_task(task) }}{% endfor %}
         {% endif %}
         {# Complete tasks #}
         {% if completedTasks %}
             <h2>Finished tasks</h2>
-            {% for task in completedTasks %}
-                <article class="task complete">
-                    <span class="ballot">
-                        <a href="/toggle/{{ task.id }}">&#x2611</a>
-                    </span>
-                    <span class="priority p{{ task.priority }}">{{ task.priority }}</span>
-                    <span class="name">{{ task.name }}</span>
-                    <span class="remove"><a href="/delete/{{ task.id }}">&#x24E7</a></span>
-                </article>
-            {% endfor %}
+            {% for task in completedTasks %}{{ render_task(task, True) }}{% endfor %}
         {% endif %}
         {% if not tasks and not completedTasks %}<p>You have no tasks yet. Create some!</p>{% endif %}
     </section>

@@ -98,7 +98,7 @@ def add_a_task():
     with connect_db() as client:
         # Add the thing to the DB
         sql = "INSERT INTO tasks (name, priority, userid) VALUES (?, ?, ?)"
-        values = [name, priority, session["userid"]]
+        values = [name, priority or 3, session["userid"]]
         client.execute(sql, values)
 
         # Go back to the home page
@@ -189,13 +189,13 @@ def login_user():
         if result.rows:
             # Yes, so check password
             user = result.rows[0]
-            hash = user.password
+            hash = user[2]
 
             # Hash matches?
             if check_password_hash(hash, password):
                 # Yes, so save info in the session
-                session["userid"] = user.id
-                session["username"] = user.username
+                session["userid"] = user[0]
+                session["username"] = user[1]
 
                 # And head back to the home page
                 flash("Login successful", "success")

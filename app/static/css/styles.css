@@ -19,6 +19,40 @@
 
 /* HOME PAGE  -------------------------------------------- */
 
+/* Task List */
+.task.complete {
+    opacity: 0.5;
+}
+
+.task.complete .remove a {
+    opacity: 1 !important;
+}
+
+.task a {
+    text-decoration: none;
+}
+
+/* Priority coloring */
+.p1 {
+    color: var(--pico-color-grey-500);
+}
+
+.p2 {
+    color: var(--pico-color-pumpkin-250);
+}
+
+.p3 {
+    color: var(--pico-color-yellow-250);
+}
+
+.p4 {
+    color: var(--pico-color-lime-300);
+}
+
+.p5 {
+    color: var(--pico-color-green-250);
+}
+
 /* Form */
 #newTask #priority {
     width: min-content;
